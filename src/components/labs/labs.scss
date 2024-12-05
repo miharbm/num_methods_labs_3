@@ -1,0 +1,9 @@
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 10fr;
+    &__chart {
+        //display: flex;
+        height: 50svh;
+        width: 100%;
+    }
+}

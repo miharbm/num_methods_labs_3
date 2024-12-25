@@ -14,9 +14,10 @@ import {
     dot,
     random,
     floor,
-    exp
+    exp, zeros, divide, add
 } from 'mathjs'
 import {useMemo} from "react";
+import {y} from "plotly.js/src/traces/bar/attributes.js";
 
 const Lab2 = () => {
     const layoutSize = Math.min(window.innerWidth, window.innerHeight) - 120;
@@ -30,6 +31,18 @@ const Lab2 = () => {
 
     const u0Func = (x, y) => {
         return sin(4 * x) * y * exp(-5 * y);
+    }
+
+    const f = (x, y) => {
+        return (9 * y - 10) * sin(4 * x) * exp(-5 * y);
+    }
+
+    const phiB = (x) => {
+        return - sin(4 * x);
+    }
+
+    const phiT = (x) => {
+        return 4 / exp(5) * sin(4 * x); // МОЖЕТ БЫТЬ ТУТ БУДЕТ ЕЩЕ ИКС
     }
 
     const xArr = useMemo(() => {

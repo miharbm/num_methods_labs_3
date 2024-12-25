@@ -1,15 +1,21 @@
 import {Route, BrowserRouter as Router, Routes, Navigate} from "react-router-dom";
-import Lab1 from "../labs/Lab1.jsx";
 import "../../styles/index.scss"
+import { Suspense, lazy } from "react";
+const Lab1 = lazy(() => import("../labs/Lab1.jsx"));
+const Lab2 = lazy(() => import("../labs/Lab2.jsx"));
+
 
 const App = () => {
     return(
         <Router>
             {/*<AppHeader/>*/}
-            <Routes>
-                <Route path="/" element={<Navigate to="/lab1" />} />
-                <Route path="/lab1" element={<Lab1/>} />
-            </Routes>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/lab1" />} />
+                    <Route path="/lab1" element={<Lab1/>} />
+                    <Route path="/lab2" element={<Lab2/>} />
+                </Routes>
+            </Suspense>
         </Router>
     )
 }

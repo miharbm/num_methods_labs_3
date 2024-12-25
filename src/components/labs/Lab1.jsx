@@ -41,6 +41,8 @@ const Lab1 = () => {
 
 
     const matrixL =  useMemo(() => {
+        console.time('matrixL');
+
         const sparseMatrix = sparse();
 
         // sparseMatrix.set([1, 0], -1); // Поддиагональ
@@ -63,6 +65,7 @@ const Lab1 = () => {
         sparseMatrix.set([xArr.length - 1, xArr.length - 2], -1); // Поддиагональ
         sparseMatrix.set([ xArr.length - 1, xArr.length - 1], 1 + (2 * alphaR * h) / (2 * betaR + alphaR * h)); // Главная диагональ
         // sparseMatrix.set([xArr.length - 2, xArr.length - 1], -1); // Наддиагональ
+        console.timeEnd('matrixL');
 
         return multiply(sparseMatrix, 1/ h**2);
     }, [m, xArr])
@@ -111,7 +114,10 @@ const Lab1 = () => {
     const vInitNotEven = generateVInit(false)
 
     const rayleighIterations = (v, lambda) => {
+        console.time('lusolve');
         const vNewTemp = lusolve( subtract(matrixL, multiply(identity(xArr.length), lambda)), v );
+        console.timeEnd('lusolve');
+
         // const vNew = multiply(vNewTemp,  1 / norm(vNewTemp.toArray().flat()));
         const vNewTempArray = vNewTemp.toArray().flat()
         const vNew = multiply( vNewTemp,  1 / vNewTempArray.reduce((max, current) => (

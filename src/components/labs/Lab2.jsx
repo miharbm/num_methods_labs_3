@@ -60,48 +60,72 @@ const Lab2 = () => {
 
 
     return (
-        <Plot
-            data={[
-                {
-                    x: xArr,
-                    y: yArr,
-                    z: zGrid,
-                    // type: 'scatter3d',
-                    type: 'surface',
-                    mode: 'markers',
-                    marker: { size: 3 },
-                    lighting: {
-                        ambient: 0.4, // Уменьшаем амбиентное освещение
-                        diffuse: 0.8, // Увеличиваем диффузное освещение для сильных теней
-                        specular: 0.9, // Увеличиваем отражение для ярких бликов
-                        roughness: 0.5, // Меньше шероховатости, более гладкие тени
-                    },
+        <>
+            <Plot
+                data={[
+                    {
+                        x: xArr,
+                        y: yArr,
+                        z: zGrid,
+                        // type: 'scatter3d',
+                        type: 'surface',
+                        mode: 'markers',
+                        marker: { size: 3 },
+                        lighting: {
+                            ambient: 0.4, // Уменьшаем амбиентное освещение
+                            diffuse: 0.8, // Увеличиваем диффузное освещение для сильных теней
+                            specular: 0.9, // Увеличиваем отражение для ярких бликов
+                            roughness: 0.5, // Меньше шероховатости, более гладкие тени
+                        },
 
-                },
-            ]}
-            layout={{
-                title: '3D Graph',
-                width: layoutSize,
-                height: layoutSize,
-                autosize: true,
-                scene: {
+                    },
+                ]}
+                layout={{
+                    title: '3D Graph',
+                    width: layoutSize,
+                    height: layoutSize,
+                    autosize: true,
+                    scene: {
+                        xaxis: { title: 'X Axis' },
+                        yaxis: { title: 'Y Axis' },
+                        zaxis: { title: 'Z Axis' },
+                        camera: {
+                            eye: { x: 1.5, y: 1.5, z: 1.5 },
+                        },
+                    },
+                    lighting: {
+                        ambient: 0.3, // Уровень амбиентного освещения
+                        diffuse: 0.7, // Уровень диффузного освещения
+                        specular: 0.8, // Уровень зеркального отражения
+                        roughness: 0.5, // Шероховатость (для более мягких теней)
+                        fresnel: 0.1, // Эффект френеля для теней
+                    },
+                }}
+                config={{ responsive: true }}
+            />
+            {/* Heatmap */}
+            <Plot
+                data={[
+                    {
+                        x: xArr,
+                        y: yArr,
+                        z: zGrid,
+                        type: 'heatmap',
+                        colorscale: 'Viridis', // Можно выбрать другой colorscale
+                    },
+                ]}
+                layout={{
+                    title: 'Heatmap',
+                    width: layoutSize / 2,
+                    height: layoutSize / 2,
                     xaxis: { title: 'X Axis' },
                     yaxis: { title: 'Y Axis' },
-                    zaxis: { title: 'Z Axis' },
-                    camera: {
-                        eye: { x: 1.5, y: 1.5, z: 1.5 },
-                    },
-                },
-                lighting: {
-                    ambient: 0.3, // Уровень амбиентного освещения
-                    diffuse: 0.7, // Уровень диффузного освещения
-                    specular: 0.8, // Уровень зеркального отражения
-                    roughness: 0.5, // Шероховатость (для более мягких теней)
-                    fresnel: 0.1, // Эффект френеля для теней
-                },
-            }}
-            config={{ responsive: true }}
-        />
+                }}
+                config={{ responsive: true }}
+            />
+        </>
+
+
     )
 }
 

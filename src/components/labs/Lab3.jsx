@@ -19,7 +19,7 @@ import {
 import {useMemo} from "react";
 import {y} from "plotly.js/src/traces/bar/attributes.js";
 
-const Lab2 = () => {
+const Lab3 = () => {
     const layoutSize = Math.min(window.innerWidth, window.innerHeight) - 120;
 
     const maxIter = 10000;
@@ -62,18 +62,6 @@ const Lab2 = () => {
     }, [xArr, yArr]);
 
 
-    const lambda_min_n = 4;
-
-    const lambda_max_n =
-        4 / (h ** 2) * Math.pow(Math.sin(Math.PI * (xArr.length - 1) * h / (2 * Math.PI)), 2) +
-        4 / (h ** 2) * Math.pow(Math.sin(Math.PI * (yArr.length - 1) * h / (2)), 2) +
-        4;
-
-    const tau = 2 / (lambda_min_n + lambda_max_n);
-
-
-    console.log("lambda_min_n:", lambda_min_n);
-    console.log("lambda_max_n:", lambda_max_n);
 
     const rightHandSide = () => {
         const res = Array.from({ length: xArr.length }, () => Array(yArr.length).fill(0));
@@ -89,78 +77,110 @@ const Lab2 = () => {
             res[i][yArr.length - 1] += phiT(xArr[i]) / h;
         }
 
-        // const res = xArr.map((x) => {
-        //     return yArr.map((y, yIndex) => {
-        //         return  f(x, y)
-        //             // + ( yIndex === 0 ? phiB(x) / h : 0 )
-        //             // + ( yIndex === yArr.length - 1 ? phiT(x) / h : 0 )
-        //             + ( yIndex === 0 ? phiT(x) / h : 0 )
-        //             + ( yIndex === yArr.length - 1 ? phiB(x) / h : 0 )
-        //     } )
-        // });
 
         return res;
     }
 
-    const opL = (uArrArr) => {
+    const opLD = (uArrArr) => {
         const res = Array.from({ length: uArrArr.length }, () => Array(uArrArr[0].length).fill(0));
 
         for (let i = 1; i < uArrArr.length; i++) {
             for(let j = 0; j < uArrArr[i].length; j++) {
-                res[i][j] += ( uArrArr[i][j] - uArrArr[i - 1][j] ) / (h ** 2);
+                res[i][j] += ( - uArrArr[i - 1][j] ) / (h ** 2);
             }
         }
 
         for (let i = 0; i < uArrArr.length - 1; i++) {
             for(let j = 0; j < uArrArr[i].length; j++) {
-                res[i][j] += ( uArrArr[i][j] - uArrArr[i + 1][j] ) / (h ** 2);
+                res[i][j] += ( - uArrArr[i + 1][j] ) / (h ** 2);
             }
         }
 
         for (let i = 0; i < uArrArr.length; i++) {
             for(let j = 1; j < uArrArr[i].length; j++) {
-                res[i][j] += ( uArrArr[i][j] - uArrArr[i][j - 1] ) / (h ** 2);
+                res[i][j] += ( - uArrArr[i][j - 1] ) / (h ** 2);
             }
         }
 
         for (let i = 0; i < uArrArr.length; i++) {
             for(let j = 0; j < uArrArr[i].length - 1; j++) {
-                res[i][j] += ( uArrArr[i][j] - uArrArr[i][j + 1] ) / (h ** 2);
+                res[i][j] += ( - uArrArr[i][j + 1] ) / (h ** 2);
             }
         }
 
 
         // условие периодичности
         for(let j = 0; j < uArrArr[0].length; j++) {
-            res[0][j] += ( uArrArr[0][j] - uArrArr.at(-1)[j] ) / (h ** 2);
+            res[0][j] += ( - uArrArr.at(-1)[j] ) / (h ** 2);
         }
 
         for(let j = 0; j < uArrArr[0].length; j++) {
-            res.at(-1)[j] += ( uArrArr.at(-1)[j] - uArrArr[0][j] ) / (h ** 2);
+            res.at(-1)[j] += ( - uArrArr[0][j] ) / (h ** 2);
         }
 
         return res;
     }
 
+    const opD = (uArrArr) => {
+        const res = Array.from({ length: uArrArr.length }, () => Array(uArrArr[0].length).fill(0));
+
+        for (let i = 1; i < uArrArr.length; i++) {
+            for(let j = 0; j < uArrArr[i].length; j++) {
+                res[i][j] += 1 / (h ** 2);
+            }
+        }
+
+        for (let i = 0; i < uArrArr.length - 1; i++) {
+            for(let j = 0; j < uArrArr[i].length; j++) {
+                res[i][j] += 1 / (h ** 2);
+            }
+        }
+
+        for (let i = 0; i < uArrArr.length; i++) {
+            for(let j = 1; j < uArrArr[i].length; j++) {
+                res[i][j] += 1 / (h ** 2);
+            }
+        }
+
+        for (let i = 0; i < uArrArr.length; i++) {
+            for(let j = 0; j < uArrArr[i].length - 1; j++) {
+                res[i][j] += 1 / (h ** 2);
+            }
+        }
+
+
+        // условие периодичности
+        for(let j = 0; j < uArrArr[0].length; j++) {
+            res[0][j] += 1 / (h ** 2);
+        }
+
+        for(let j = 0; j < uArrArr[0].length; j++) {
+            res.at(-1)[j] += 1 / (h ** 2);
+        }
+
+        return res
+    }
 
     // const initU = Array.from({ length: xArr.length }, () => Array(yArr.length).fill(0))
 
     const rightHandSideValues = rightHandSide();
-    console.log("rightHandSideValues", rightHandSideValues)
 
-    const simpleIteration = () => {
+    const jacobMethod = () => {
         const initU = Array.from({ length: xArr.length }, () => Array(yArr.length).fill(0))
 
         let u = JSON.parse(JSON.stringify(initU)); //просто копия
 
+        const opDValues = opD(u);
+
         for (let iter = 0; iter < maxIter; iter++) {
 
-            let lUArrArr = opL(u);
+            let lDUArrArr = opLD(u);
 
+            console.log("lDUArrArr",lDUArrArr);
 
             for (let i = 0; i < xArr.length; i++) {
                 for (let j = 0; j < yArr.length; j++) {
-                    u[i][j] = u[i][j] + tau * (rightHandSideValues[i][j] - lUArrArr[i][j]);
+                    u[i][j] = ( 1 / opDValues[i][j] ) * (rightHandSideValues[i][j] - lDUArrArr[i][j] );
                 }
             }
         }
@@ -168,10 +188,10 @@ const Lab2 = () => {
         return u;
     }
 
-    const simpleIterationSolution = simpleIteration()
+    const jacobMethodSolution = jacobMethod()
 
 
-    const deviation = simpleIterationSolution.map((xArr, i) => (
+    const deviation = jacobMethodSolution.map((xArr, i) => (
         xArr.map((x, j) => x - zGrid[i][j])
     ))
 
@@ -185,6 +205,50 @@ const Lab2 = () => {
                         x: yArr,
                         y: xArr,
                         z: zGrid,
+                        // type: 'scatter3d',
+                        type: 'surface',
+                        mode: 'markers',
+                        marker: { size: 3 },
+                        lighting: {
+                            ambient: 0.4, // Уменьшаем амбиентное освещение
+                            diffuse: 0.8, // Увеличиваем диффузное освещение для сильных теней
+                            specular: 0.9, // Увеличиваем отражение для ярких бликов
+                            roughness: 0.5, // Меньше шероховатости, более гладкие тени
+                        },
+
+                    },
+                ]}
+                layout={{
+                    title: '3D Graph',
+                    width: layoutSize,
+                    height: layoutSize,
+                    autosize: true,
+                    scene: {
+                        xaxis: { title: 'X Axis' },
+                        yaxis: { title: 'Y Axis' },
+                        zaxis: { title: 'Z Axis' },
+                        camera: {
+                            eye: { x: 1.5, y: 1.5, z: 1.5 },
+                        },
+                    },
+                    lighting: {
+                        ambient: 0.3, // Уровень амбиентного освещения
+                        diffuse: 0.7, // Уровень диффузного освещения
+                        specular: 0.8, // Уровень зеркального отражения
+                        roughness: 0.5, // Шероховатость (для более мягких теней)
+                        fresnel: 0.1, // Эффект френеля для теней
+                    },
+                }}
+                config={{ responsive: true }}
+            />
+            <Plot
+                data={[
+                    {
+                        // x: xArr,
+                        // y: yArr,
+                        x: yArr,
+                        y: xArr,
+                        z: jacobMethodSolution,
                         // type: 'scatter3d',
                         type: 'surface',
                         mode: 'markers',
@@ -250,7 +314,7 @@ const Lab2 = () => {
                         // y: yArr,
                         x: yArr,
                         y: xArr,
-                        z: simpleIterationSolution,
+                        z: jacobMethodSolution,
                         type: 'heatmap',
                         colorscale: 'Viridis', // Можно выбрать другой colorscale
                     },
@@ -291,4 +355,4 @@ const Lab2 = () => {
     )
 }
 
-export default Lab2;
+export default Lab3;

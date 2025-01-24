@@ -29,7 +29,7 @@ const Lab2 = () => {
     const yStart = 0;
     const yEnd = 1;
 
-    const h = 0.01;
+    const h = 0.1;
 
     const u0Func = (x, y) => {
         return sin(4 * x) * y * exp(-5 * y);
@@ -171,6 +171,9 @@ const Lab2 = () => {
     const simpleIterationSolution = simpleIteration()
 
 
+    const deviation = simpleIterationSolution.map((xArr, i) => (
+        xArr.map((x, j) => x - zGrid[i][j])
+    ))
 
     return (
         <div style={{width:'100%'}}>
@@ -248,6 +251,27 @@ const Lab2 = () => {
                         x: yArr,
                         y: xArr,
                         z: simpleIterationSolution,
+                        type: 'heatmap',
+                        colorscale: 'Viridis', // Можно выбрать другой colorscale
+                    },
+                ]}
+                layout={{
+                    title: 'Heatmap',
+                    width: layoutSize / 2,
+                    height: layoutSize / 2,
+                    xaxis: { title: 'X Axis' },
+                    yaxis: { title: 'Y Axis' },
+                }}
+                config={{ responsive: true }}
+            />
+            <Plot
+                data={[
+                    {
+                        // x: xArr,
+                        // y: yArr,
+                        x: yArr,
+                        y: xArr,
+                        z: deviation,
                         type: 'heatmap',
                         colorscale: 'Viridis', // Можно выбрать другой colorscale
                     },
